@@ -1,0 +1,23 @@
+{
+  "name": "test-task",
+  "version": "1.0.0",
+  "description": "An Ecommerce REST API as Task submission as job interview",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BRAVO68WEB/hybr1d-interview-task.git"
+  },
+  "keywords": [
+    "hybr1d",
+    "rest-api"
+  ],
+  "author": "BRAVO68WEB",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BRAVO68WEB/hybr1d-interview-task/issues"
+  },
+  "homepage": "https://github.com/BRAVO68WEB/hybr1d-interview-task#readme"
+}
