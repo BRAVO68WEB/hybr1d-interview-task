@@ -110,8 +110,80 @@ async function placeOrder(req, res) {
   }
 }
 
+async function getOrders(req, res) {
+  const user_id = req.userData.sub;
+  try {
+    const user = await User.findById(user_id).exec();
+    if (!user) {
+      return res.status(401).json({
+        status: false,
+        message: "User not found.",
+      });
+    }
+    const orders = await Order.find({
+      orderBy: user_id
+    }).exec();
+    return res.json({
+      status: true,
+      message: "Successfully get orders.",
+      data: orders,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      status: false,
+      message: "Something went wrong.",
+      data: error,
+    });
+  }
+}
+
+async function cancelOrder(req, res) {
+  const user_id = req.userData.sub;
+  const order_id = req.params.order;
+  const order = await Order.findById(order_id).exec();
+  if (!order) {
+    return res.status(401).json({
+      status: false,
+      message: "Order not found.",
+    });
+  }
+  if (order.orderBy != user_id) {
+    return res.status(401).json({
+      status: false,
+      message: "You are not authorized to cancel this order.",
+    });
+  }
+  if (order.status != "pending") {
+    return res.status(401).json({
+      status: false,
+      message: "You can not cancel this order.",
+    });
+  }
+  try {
+    await Order.findByIdAndUpdate(order_id, {
+      status: "cancelled"
+    }).exec();
+    await User.findByIdAndUpdate(order.seller, {
+      $pull: {
+        pendingOrders: order_id
+      }
+    }).exec();
+    return res.json({
+      status: true,
+      message: "Successfully cancel order.",
+    });
+  } catch (error) {
+    return res.status(401).json({
+      status: false,
+      message: "Something went wrong.",
+      data: error,
+    });
+  }
+}
+
 module.exports = {
   getCatalog,
   getProduct,
-  placeOrder
+  placeOrder,
+  cancelOrder
 };
