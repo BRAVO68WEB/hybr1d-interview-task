@@ -3,7 +3,7 @@ const user_controller = require("../controllers/user.controller");
 const auth_middleware = require("../middlewares/auth.middleware");
 
 route.post(
-  "/signUp",
+  "/register",
   // auth_middleware.verifyConnection,
   user_controller.Register
 );

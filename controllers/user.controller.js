@@ -25,8 +25,12 @@ async function Register(req, res) {
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    Name: req.body.Name,
-    Address: req.body.Address,
+    name: {
+      first:  req.body.name.first,
+      last:  req.body.name.last,
+    },
+    mobile: req.body.mobile,
+    type: req.body.type,
   });
   user.setPassword(req.body.password);
 
@@ -39,7 +43,10 @@ async function Register(req, res) {
         id: saved_user._id,
         username: saved_user.username,
         email: saved_user.email,
-        name: saved_user.Name,
+        name: {
+          first: saved_user.name.first,
+          last: saved_user.name.last,
+        },
       },
     });
   } catch (error) {
