@@ -28,7 +28,6 @@ async function addProduct(req, res) {
             price,
             listedBy: user_id,
         });
-        console.log(product);
         const newProduct = await product.save();
         return res.json({
             status: true,
@@ -103,7 +102,9 @@ async function listorders(req, res) {
                 message: "User not found.",
             });
         }
-        const orders = await Order.find({}).exec();
+        const orders = await Order.find({
+            "products.merchantID": user_id
+        }).exec();
         
         return res.json({
             status: true,
@@ -139,34 +140,33 @@ async function maskAsCompleted(req, res) {
                 message: "Order not found.",
             });
         }
-        if (order.seller.toString() !== user_id) {
-            return res.status(401).json({
-                status: false,
-                message: "You are not the owner of this order.",
-            });
+        let productToMark = (order.products)
+        for(i in productToMark){
+            if(productToMark[i].merchantID.toString() === user_id){
+                // await User.findByIdAndUpdate(user_id, {
+                //     $addToSet: {
+                //         completedOrders: order_id
+                //     }
+                //   }).exec();
+                for(j in productToMark[i].products){
+                        productToMark[i].products[j].status = "completed"
+                }
+            }
         }
-        await User.findByIdAndUpdate(order.seller, {
-            $push: {
-                completedOrders: order_id
-            }
-          }).exec();
-
-        await Order.findByIdAndUpdate(order_id, {
-            $set: {
-                status: "completed"
-            }
-        });
+        
+        await order.save();
 
         return res.json({
             status: true,
             message: "Successfully mask order as completed.",
-            data: newOrder,
+            data: order,
         });
+
     } catch (error) {
         return res.status(401).json({
             status: false,
             message: "Something went wrong.",
-            data: error,
+            data: error.message,
         });
     }
 }

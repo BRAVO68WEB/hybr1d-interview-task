@@ -3,9 +3,9 @@ const Product = require("../models/product.model");
 const Order = require("../models/order.model");
 
 async function getCatalog(req, res) {
-  const user_id = req.params.seller;
+  const seller_name = req.params.seller;
   try {
-    const user = await User.findOne(user_id).populate({
+    const user = await User.findOne({username: seller_name}).populate({
       path: 'catalog',
       select: ['name', 'price']
     }).exec();
@@ -62,25 +62,41 @@ async function placeOrder(req, res) {
   } = req.body;
 
   let productToOrder = [];
-  let seller;
+  let seller = "";
   let product = {};
-  let totalPrice = 0;
+  let totalPrice = 0; 
   
-  for (i in products) {
-    product = await Product.findById(products[i]).exec();
-    seller = product.listedBy;
-    totalPrice += product.price;
-
-    productToOrder.push({
-      merchantID: seller,
-      products: [{
-        productID: products[i],
-        quantity: 1,
-        status: "pending"
-      }]
-    })
-  }
   try {
+    for (i in products) {
+      product = await Product.findById(products[i]).exec();
+      seller = String(product.listedBy);
+      totalPrice += product.price;
+      if (!product.onCatalog) {
+        throw new Error("Product is not on catalog.");
+      }
+      let added = false;
+      for(j in productToOrder){
+        if(productToOrder[j].merchantID == seller){
+          productToOrder[j].products.push({
+            productID: products[i],
+            quantity: 1,
+            status: "pending"
+          })
+          added = true;
+          break;
+        }
+      }
+      if(!added)
+        productToOrder.push({
+          merchantID: seller,
+          products: [{
+            productID: products[i],
+            quantity: 1,
+            status: "pending"
+          }]
+        })
+    }
+    
     const user = await User.findById(user_id).exec();
 
     if (!user) {
@@ -98,22 +114,22 @@ async function placeOrder(req, res) {
       payment
     });
     const newOrder = await order.save();
-    await User.findByIdAndUpdate(seller, {
-      $addToSet: {
-        pendingOrders: newOrder._id
-      }
-    }).exec();
+    
+    // await User.findByIdAndUpdate(seller, {
+    //   $addToSet: {
+    //     pendingOrders: newOrder._id
+    //   }
+    // }).exec();
     return res.json({
       status: true,
       message: "Successfully place order.",
       data: newOrder,
     });
   } catch (error) {
-    console.log(error)
     return res.status(401).json({
       status: false,
       message: "Something went wrong.",
-      data: error,
+      data: error.message,
     });
   }
 }
@@ -155,7 +171,7 @@ async function cancelOrder(req, res) {
       message: "Order not found.",
     });
   }
-  if (order.orderBy != user_id) {
+  if (order.orderBy != user_id || order.status != "completed") {
     return res.status(401).json({
       status: false,
       message: "You are not authorized to cancel this order.",
@@ -171,11 +187,11 @@ async function cancelOrder(req, res) {
     await Order.findByIdAndUpdate(order_id, {
       status: "cancelled"
     }).exec();
-    await User.findByIdAndUpdate(order.seller, {
-      $pull: {
-        pendingOrders: order_id
-      }
-    }).exec();
+    // await User.findByIdAndUpdate(order.seller, {
+    //   $pull: {
+    //     pendingOrders: order_id
+    //   }
+    // }).exec();
     return res.json({
       status: true,
       message: "Successfully cancel order.",
@@ -189,9 +205,30 @@ async function cancelOrder(req, res) {
   }
 }
 
+async function listSellers(req, res) {
+  try {
+    const sellers = await User.find({
+      type: "seller"
+    }).exec();
+    return res.json({
+      status: true,
+      message: "Successfully get sellers.",
+      data: sellers.map(seller => seller.username),
+    });
+  } catch (error) {
+    return res.status(401).json({
+      status: false,
+      message: "Something went wrong.",
+      data: error,
+    });
+  }
+}
+
 module.exports = {
   getCatalog,
   getProduct,
+  getOrders,
   placeOrder,
-  cancelOrder
+  cancelOrder,
+  listSellers
 };

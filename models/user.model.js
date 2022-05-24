@@ -33,26 +33,26 @@ const userSchema = new mongoose.Schema({
     enum: ["buyer", "seller"],
     default: "buyer",
   },
-  pendingOrders: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-  }],
-  completedOrders: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-  }],
-  totalOrdersPlaced: {
-    type: Number,
-    default: 0,
-  },
-  placedOrders: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Order",
-  }],
-  totalOrdersCompleted: {
-    type: Number,
-    default: 0,
-  },
+  // pendingOrders: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Order",
+  // }],
+  // completedOrders: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Order",
+  // }],
+  // totalOrdersPlaced: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // placedOrders: [{
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Order",
+  // }],
+  // totalOrdersCompleted: {
+  //   type: Number,
+  //   default: 0,
+  // },
   salt: {
     type: String,
     required: true,
