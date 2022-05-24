@@ -56,19 +56,30 @@ async function getProduct(req, res) {
 async function placeOrder(req, res) {
   const user_id = req.userData.sub;
   let {
-    productId,
+    products,
     address,
-    payment,
-    quantity
+    payment
   } = req.body;
-  if (quantity == null) {
-    console.log("quantity is null");
-    quantity = 1;
-  }
-  const product = await Product.findById(productId).exec();
-  const seller = product.listedBy;
-  const totalPrice = product.price * quantity;
 
+  let productToOrder = [];
+  let seller;
+  let product = {};
+  let totalPrice = 0;
+  
+  for (i in products) {
+    product = await Product.findById(products[i]).exec();
+    seller = product.listedBy;
+    totalPrice += product.price;
+
+    productToOrder.push({
+      merchantID: seller,
+      products: [{
+        productID: products[i],
+        quantity: 1,
+        status: "pending"
+      }]
+    })
+  }
   try {
     const user = await User.findById(user_id).exec();
 
@@ -79,13 +90,10 @@ async function placeOrder(req, res) {
       });
     }
     const orderBy = user_id;
-    console.log(productId + " " + quantity + " " + totalPrice + " " + seller + " " + address + " " + payment);
     const order = new Order({
       orderBy,
-      productId,
-      quantity,
+      products: productToOrder,
       totalPrice,
-      seller,
       address,
       payment
     });

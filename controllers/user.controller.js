@@ -74,6 +74,7 @@ async function Login(req, res) {
     const access_token = jwt.sign(
       {
         sub: user._id,
+        role: user.type
       },
       process.env.JWT_ACCESS_SECRET,
       {

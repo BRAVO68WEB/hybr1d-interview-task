@@ -118,8 +118,42 @@ async function verifyConnection(req, res, next) {
   }
 }
 
+function buyerValidity(req, res, next) {
+  try {
+    if (req.userData.role === "buyer") {
+      next();
+    } else {
+      throw new Error("You are not valid buyer.")
+    }
+  } catch (error) {
+    return res.status(401).json({
+      status: false,
+      message: "You are not valid buyer.",
+      data: error,
+    });
+  }
+}
+
+function sellerValidity(req, res, next) {
+  try {
+    if (req.userData.role === "seller") {
+      next();
+    } else {
+      throw new Error("You are not valid seller.")
+    }
+  } catch (error) {
+    return res.status(401).json({
+      status: false,
+      message: "You are not valid seller.",
+      data: error,
+    });
+  }
+}
+
 module.exports = {
   verifyToken,
   verifyRefreshToken,
   verifyConnection,
+  buyerValidity,
+  sellerValidity
 };

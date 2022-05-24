@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const Product = require("../models/product.model");
+const Order = require("../models/order.model");
 
 async function addProduct(req, res) {
     const user_id = req.userData.sub;
@@ -93,6 +94,7 @@ async function pushToCatalog(req, res, next) {
 
 async function listorders(req, res) {
     const user_id = req.userData.sub;
+    
     try {
         const user = await User.findById(user_id).exec();
         if (!user) {
@@ -101,9 +103,8 @@ async function listorders(req, res) {
                 message: "User not found.",
             });
         }
-        const orders = await Order.find({
-            seller: user_id
-        }).exec();
+        const orders = await Order.find({}).exec();
+        
         return res.json({
             status: true,
             message: "Successfully get orders.",

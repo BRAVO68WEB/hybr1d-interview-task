@@ -6,25 +6,33 @@ const orderSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-    productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        default: 1,
-    },
+    products: [{
+        merchantID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        products: [{
+            productID: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Product",
+                required: true,
+            },
+            quantity: {
+                type: Number,
+                min: 1,
+                default: 1,
+            },
+            status: {
+                type: String,
+                enum: ["pending", "completed", "cancelled"],
+            }
+        }]
+    }],
     totalPrice: {
         type: Number,
         required: true,
         default: 0,
-    },
-    seller: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
     },
     status: {
         type: String,
@@ -45,5 +53,6 @@ const orderSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
+
 
 module.exports = mongoose.model("Order", orderSchema);

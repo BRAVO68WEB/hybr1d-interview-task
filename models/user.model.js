@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   name: {
     first: {
@@ -24,6 +25,7 @@ const userSchema = new mongoose.Schema({
   mobile: {
     type: String,
     required: true,
+    unique: true,
   },
   type: {
     type: String,
