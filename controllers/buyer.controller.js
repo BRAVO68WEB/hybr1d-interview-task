@@ -120,6 +120,7 @@ async function placeOrder(req, res) {
     //     pendingOrders: newOrder._id
     //   }
     // }).exec();
+    
     return res.json({
       status: true,
       message: "Successfully place order.",
